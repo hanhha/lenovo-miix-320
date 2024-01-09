@@ -7,6 +7,7 @@ from PySide2.QtWidgets import QSystemTrayIcon, QApplication
 from PySide2.QtGui import QIcon
 from pyudev import MonitorObserver, Context, Monitor
 import sys
+import subprocess
 
 #
 # Config
@@ -138,7 +139,7 @@ class RotationWorker(QThread):
                 matches = re.findall(self.pattern, line)
 
                 if not locked and mode == MODE_TABLET:
-                    if len(matches) > 0 and matches[0] is not 'undefined':
+                    if len(matches) > 0 and matches[0] != 'undefined':
                         if matches[0] in ORIENTATIONS:
                             orientation = ORIENTATIONS[matches[0]]
                             rotate(orientation)
@@ -177,8 +178,7 @@ print('touchscreen: ', touchscreen_id)
 print('touchpad: ', touchpad_id)
 
 # Get connected monitor name
-# TODO: Use xrandr to auto-detect
-monitor_name = 'DSI1'
+monitor_name = subprocess.check_output ('xrandr | grep -w connected | cut -d " " -f1', shell=True).decode(sys.stdout.encoding).strip() 
 
 # Run the app
 if __name__ == "__main__":
